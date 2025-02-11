@@ -1,0 +1,25 @@
+.pdf-container {
+    display: flex; /* Use flexbox for side-by-side layout */
+    width: 100%; /* Take up full width of the parent */
+    height: 100vh; /* Take up full height of the viewport */
+    box-sizing: border-box;
+}
+
+.pdf-window {
+    width: 50%; /* Each PDF window takes up 50% of the container */
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    margin: 5px;
+}
+
+.pdf-scrollable {
+    max-height: 80vh; /* Limit the height of the scrollable area */
+    overflow: auto; /* Enable vertical scrolling */
+    box-sizing: border-box;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 10px;
+}
