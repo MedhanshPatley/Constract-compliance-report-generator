@@ -114,10 +114,89 @@
 
 // export default PdfViewerPage;
 
+// """this is code for pdf preview and user also download those pdf"""
+// import React, { useState, useEffect } from 'react';
+// import { useLocation } from 'react-router-dom';
+// import './PdfViewerPage.css';
+
+// const PdfViewerPage = () => {
+//     const location = useLocation();
+//     const { contractPdfBase64, compliancePdfBase64 } = location.state || {};
+//     const [contractPdfUrl, setContractPdfUrl] = useState(null);
+//     const [compliancePdfUrl, setCompliancePdfUrl] = useState(null);
+//     const [error, setError] = useState(null);
+
+//     useEffect(() => {
+//         if (!contractPdfBase64 || !compliancePdfBase64) {
+//             setError("PDF data not found. Please return to the form and submit again.");
+//             return;
+//         }
+
+//         let contractPdfUrlLocal, compliancePdfUrlLocal; // Declare outside the try block
+
+//         try {
+//             // Create a URL for the contract PDF
+//             const contractPdfBlob = base64ToBlob(contractPdfBase64, 'application/pdf');
+//             contractPdfUrlLocal = URL.createObjectURL(contractPdfBlob);
+//             setContractPdfUrl(contractPdfUrlLocal);
+
+//             // Create a URL for the compliance PDF
+//             const compliancePdfBlob = base64ToBlob(compliancePdfBase64, 'application/pdf');
+//             compliancePdfUrlLocal = URL.createObjectURL(compliancePdfBlob);
+//             setCompliancePdfUrl(compliancePdfUrlLocal);
+
+//         } catch (e) {
+//             setError(`Error creating PDF URLs: ${e.message}`);
+//             console.error("Error creating PDF URLs:", e);
+//         }
+
+//         // Cleanup URLs when component unmounts or base64 strings change
+//         return () => {
+//             URL.revokeObjectURL(contractPdfUrlLocal);
+//             URL.revokeObjectURL(compliancePdfUrlLocal);
+//         };
+
+//     }, [contractPdfBase64, compliancePdfBase64]);
+
+//     const base64ToBlob = (base64, type) => {
+//         const binStr = atob(base64);
+//         const len = binStr.length;
+//         const arr = new Uint8Array(len);
+//         for (let i = 0; i < len; i++) {
+//             arr[i] = binStr.charCodeAt(i);
+//         }
+//         return new Blob([arr], { type: type });
+//     }
+
+//     return (
+//         <div className="pdf-container">
+//             <div className="pdf-window">
+//                 <h2>Generated Contract</h2>
+//                 {contractPdfUrl ? (
+//                     <iframe src={contractPdfUrl} width="100%" height="600px" title="Contract PDF"/>
+//                 ) : (
+//                     <p>Loading Contract PDF...</p>
+//                 )}
+//             </div>
+//             <div className="pdf-window">
+//                 <h2>Compliance Report</h2>
+//                 {compliancePdfUrl ? (
+//                     <iframe src={compliancePdfUrl} width="100%" height="600px" title="Compliance PDF"/>
+//                 ) : (
+//                     <p>Loading Compliance PDF...</p>
+//                 )}
+//             </div>
+//         </div>
+//     );
+// };
+
+// export default PdfViewerPage;
+
 
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import './PdfViewerPage.css';
+import { Tab, Tabs } from '@mui/material';
+import './PdfViewerPage.css'; // Import your custom CSS
 
 const PdfViewerPage = () => {
     const location = useLocation();
@@ -125,6 +204,7 @@ const PdfViewerPage = () => {
     const [contractPdfUrl, setContractPdfUrl] = useState(null);
     const [compliancePdfUrl, setCompliancePdfUrl] = useState(null);
     const [error, setError] = useState(null);
+    const [tabValue, setTabValue] = useState(0); // 0: Contract, 1: Compliance
 
     useEffect(() => {
         if (!contractPdfBase64 || !compliancePdfBase64) {
@@ -152,8 +232,8 @@ const PdfViewerPage = () => {
 
         // Cleanup URLs when component unmounts or base64 strings change
         return () => {
-            URL.revokeObjectURL(contractPdfUrlLocal);
-            URL.revokeObjectURL(compliancePdfUrlLocal);
+            if (contractPdfUrlLocal) URL.revokeObjectURL(contractPdfUrlLocal);
+            if (compliancePdfUrlLocal) URL.revokeObjectURL(compliancePdfUrlLocal);
         };
 
     }, [contractPdfBase64, compliancePdfBase64]);
@@ -168,24 +248,37 @@ const PdfViewerPage = () => {
         return new Blob([arr], { type: type });
     }
 
+    const handleChangeTab = (event, newValue) => {
+        setTabValue(newValue);
+    };
+
     return (
-        <div className="pdf-container">
-            <div className="pdf-window">
-                <h2>Generated Contract</h2>
-                {contractPdfUrl ? (
-                    <iframe src={contractPdfUrl} width="100%" height="600px" title="Contract PDF"/>
-                ) : (
-                    <p>Loading Contract PDF...</p>
-                )}
-            </div>
-            <div className="pdf-window">
-                <h2>Compliance Report</h2>
-                {compliancePdfUrl ? (
-                    <iframe src={compliancePdfUrl} width="100%" height="600px" title="Compliance PDF"/>
-                ) : (
-                    <p>Loading Compliance PDF...</p>
-                )}
-            </div>
+        <div>
+            <Tabs value={tabValue} onChange={handleChangeTab} aria-label="pdf-tabs">
+                <Tab label="Generated Contract" id="contract-tab" aria-controls="contract-panel" />
+                <Tab label="Compliance Report" id="compliance-tab" aria-controls="compliance-panel" />
+            </Tabs>
+              {error && <div>Error: {error}</div>}
+            {tabValue === 0 && (
+                <div id="contract-panel" aria-labelledby="contract-tab" className="pdf-window">
+                    <h2>Generated Contract</h2>
+                    {contractPdfUrl ? (
+                        <iframe src={contractPdfUrl} width="100%" height="600px" title="Contract PDF"/>
+                    ) : (
+                        <p>Loading Contract PDF...</p>
+                    )}
+                </div>
+            )}
+            {tabValue === 1 && (
+                <div id="compliance-panel" aria-labelledby="compliance-tab" className="pdf-window">
+                    <h2>Compliance Report</h2>
+                    {compliancePdfUrl ? (
+                        <iframe src={compliancePdfUrl} width="100%" height="600px" title="Compliance PDF"/>
+                    ) : (
+                        <p>Loading Compliance PDF...</p>
+                    )}
+                </div>
+            )}
         </div>
     );
 };

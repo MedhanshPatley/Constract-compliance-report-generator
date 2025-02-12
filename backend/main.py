@@ -292,6 +292,8 @@
 # if __name__ == '__main__':
 #     app.run(debug=True, host='0.0.0.0')
 
+
+'''this below code is responsive for the generating contract and compliance pdf and sending in the frontend'''
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import json
